@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gamelist>
+	<game>
+		<path>./Pharos App.sh</path>
+		<name>Pharos App</name>
+        <desc>Pharos is a tool for downloading ports and wine bottles hosted on independent GitHub repositories.</desc>
+		<image>./Pharos/resources/cover.png</image>
+		<releasedate>20251113</releasedate>
+		<developer>Jeod</developer>
+		<genre>Application</genre>
+	</game>
+</gamelist>

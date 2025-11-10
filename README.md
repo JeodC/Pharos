@@ -1,0 +1,34 @@
+<div align=center>
+<img width="320" height="317" alt="image" src="https://github.com/user-attachments/assets/7d0102c2-2f2d-482b-8bf9-48d79abed207" />
+</div>
+
+# Pharos
+Named after the Lighthouse of Alexandria, **Pharos** is a browser application designed to provide an alternative interface for installing ports and wine-arm64 wrappers. Pharos follows GitHub repository links listed in a configurable file `.sources` and presents ports hosted on those repositories.
+
+<div align=center>
+<img width="400" height="300" alt="pharos2" src="https://github.com/user-attachments/assets/0e75aa7e-7668-45b1-88ea-3431d96f7032" />
+</div>
+---
+
+## How It Works
+
+1. Pharos reads a list of repository URLs from plaintext file `.sources`.
+2. It parses each repository and displays ports in its GUI.
+4. Downloaded files are placed in `Pharos/autoinstall`.
+5. Pharos installs the port or wine bottle to either `roms/ports` or `roms/windows` folders.
+6. Pharos updates `gamelist.xml` with `gameinfo.xml` included with the download.
+
+> **Important:** For Pharos to parse and display repositories correctly, participating repositories must follow a **compatible file structure** and have a valid `ports.json` or `winecask.json` file.
+
+---
+
+## Security
+Pharos does **not perform validation** on downloaded files. Users are responsible for ensuring that all sources are trusted and safe.
+
+---
+
+## Hosting Your Own Repository
+To host a repository compatible with Pharos, ensure it adheres to the expected structure and `ports.json` or `winecask.json` format. For guidance, see the [template repository](https://github.com/JeodC/Pharos-Template).
+
+## Thanks
+Pharos is a python application inspired by RomM and PortMaster. Some code is based on existing functions from those applications, hence the AGPL license.

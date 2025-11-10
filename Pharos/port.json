@@ -1,0 +1,35 @@
+{
+  "version": 4,
+  "name": "pharos.zip",
+  "items": [
+    "Pharos.sh",
+    "pharos"
+  ],
+  "items_opt": [],
+  "attr": {
+    "title": "Pharos",
+    "porter": [
+      "Jeod"
+    ],
+    "desc": "Pharos is a tool for downloading port wrappers hosted outside of PortMaster.",
+    "desc_md": null,
+    "inst": "Add repository URLs to the .sources file to have Pharos check them for ports.",
+    "inst_md": null,
+    "genres": [
+      "app"
+    ],
+    "image": null,
+    "rtr": true,
+    "exp": false,
+    "runtime": [
+      "python_3.11.squashfs"
+	],
+    "store": [],
+    "availability": "full",
+    "reqs": [],
+    "arch": [
+      "aarch64"
+    ],
+    "min_glibc": ""
+  }
+}

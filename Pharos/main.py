@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""
+Pharos/main.py
+Entrypoint to the Pharos companion app.
+"""
+import os
+import sys
+import zipfile
+
+# Add dependencies to path
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+LIBS_PATH = os.path.join(BASE_PATH, "deps")
+sys.path.insert(0, LIBS_PATH)
+import sdl2
+
+# Global log file descriptor
+_log_fd = None
+
+# ----------------------------------------------------------------------
+# Logging setup
+# ----------------------------------------------------------------------
+def initialise_logging() -> None:
+    global _log_fd
+    log_file = os.environ.get("LOG_FILE", os.path.join(BASE_PATH, "logs", "log.txt"))
+    try:
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        _log_fd = open(log_file, "w", buffering=0)  # Unbuffered for immediate writes
+        sys.stdout = sys.stderr = _log_fd
+    except Exception as e:
+        print(f"Failed to open log file {log_file}: {e}", file=sys.__stdout__)
+        _log_fd = sys.__stdout__
+
+# ----------------------------------------------------------------------
+# Cleanup helper
+# ----------------------------------------------------------------------
+def cleanup(pharos_instance, exit_code: int) -> None:
+    if pharos_instance:
+        try:
+            pharos_instance.cleanup()
+        except Exception as e:
+            print(f"Pharos cleanup error: {e}", file=sys.__stderr__)
+        try:
+            pharos_instance.ui.cleanup()
+            pharos_instance.input.cleanup()
+        except Exception as e:
+            print(f"UI/Input cleanup error: {e}", file=sys.__stderr__)
+
+    if _log_fd and not getattr(_log_fd, "closed", True):
+        try:
+            _log_fd.flush()
+            _log_fd.close()
+        except Exception:
+            pass
+
+    sdl2.SDL_Quit()
+
+    os._exit(exit_code)
+
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    from pharos import Pharos
+
+    initialise_logging()
+
+    if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO | sdl2.SDL_INIT_GAMECONTROLLER) < 0:
+        print(f"SDL2 init failed: {sdl2.SDL_GetError()}")
+        sys.exit(1)
+
+    pharos = None
+    try:
+        pharos = Pharos()
+        pharos.start()
+
+        # Optional: memory leak debug
+        _check_leaks = lambda: None
+        if os.getenv("DEBUG_MEMORY"):
+            import tracemalloc
+            tracemalloc.start(25)
+            _snapshot = tracemalloc.take_snapshot()
+            frame = 0
+            def _check_leaks():
+                nonlocal _snapshot, frame
+                frame += 1
+                if frame % 1000 == 0:
+                    s = tracemalloc.take_snapshot()
+                    stats = s.compare_to(_snapshot, 'lineno')
+                    print("\n=== MEMORY GROWTH (top 5) ===")
+                    for stat in stats[:5]:
+                        print(stat)
+                    _snapshot = s
+            import atexit
+            atexit.register(tracemalloc.stop)
+
+        while pharos.running:
+            _check_leaks()
+            pharos.ui.draw_start()
+            pharos.update()
+            pharos.ui.render_to_screen()
+            pharos.input.clear_pressed()
+            sdl2.SDL_Delay(16)
+
+    except KeyboardInterrupt:
+        print("\nInterrupted by user.")
+        cleanup(pharos, 0)
+    except Exception as e:
+        print(f"Unhandled exception: {e}")
+        cleanup(pharos, 1)
+    else:
+        print("Exiting Pharos...")
+        cleanup(pharos, 0)
+    finally:
+        if pharos is None and sdl2.SDL_WasInit(0):
+            sdl2.SDL_Quit()
+
+if __name__ == "__main__":
+    main()
