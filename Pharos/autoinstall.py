@@ -101,24 +101,37 @@ class AutoInstaller:
             tree = ET.ElementTree(root)
             print(f"[CREATE] Creating {gamelist_path}")
 
-        # Avoid duplicates by <path>
-        existing_paths = {
-            game.find("path").text
+        # Map existing games by <path> for easy lookup
+        existing_games = {
+            game.find("path").text: game
             for game in root.findall("game")
             if game.find("path") is not None
         }
 
-        count = 0
+        count_added = 0
+        count_updated = 0
+
         for game in root_gameinfo.findall("game"):
             path_elem = game.find("path")
             if path_elem is not None:
                 path = path_elem.text
-                if path not in existing_paths:
+                if path in existing_games:
+                    # Update the existing entry
+                    existing_game = existing_games[path]
+                    for elem in game:
+                        existing = existing_game.find(elem.tag)
+                        if existing is not None:
+                            existing.text = elem.text
+                        else:
+                            existing_game.append(elem)
+                    count_updated += 1
+                else:
+                    # Add as new entry
                     root.append(game)
-                    existing_paths.add(path)
-                    count += 1
+                    existing_games[path] = game
+                    count_added += 1
 
-        if count > 0:
+        if count_added > 0 or count_updated > 0:
             if hasattr(ET, "indent"):
                 ET.indent(root, space="  ", level=0)
             gamelist_path.parent.mkdir(parents=True, exist_ok=True)
@@ -128,6 +141,6 @@ class AutoInstaller:
                 xml_declaration=True,
                 short_empty_elements=False
             )
-            print(f"[GAMELIST] Added {count} game(s) → {gamelist_path.name}")
+            print(f"[GAMELIST] Added {count_added} new game(s), updated {count_updated} existing game(s) → {gamelist_path.name}")
         else:
-            print(f"[INFO] No new entries from {gameinfo_file.name}")
+            print(f"[INFO] No changes from {gameinfo_file.name}")
