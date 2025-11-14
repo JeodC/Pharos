@@ -3,6 +3,8 @@
 Pharos/main.py
 Entrypoint to the Pharos companion app.
 """
+
+import glob
 import os
 import sys
 import zipfile
@@ -21,10 +23,18 @@ _log_fd = None
 # ----------------------------------------------------------------------
 def initialise_logging() -> None:
     global _log_fd
-    log_file = os.environ.get("LOG_FILE", os.path.join(BASE_PATH, "logs", "log.txt"))
+    log_dir = os.path.join(BASE_PATH, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+
+    # Delete oldest logs if more than 10 exist
+    log_files = sorted(glob.glob(os.path.join(log_dir, "*.txt")), key=os.path.getmtime)
+    while len(log_files) >= 10:
+        os.remove(log_files[0])
+        log_files.pop(0)
+
+    log_file = os.environ.get("LOG_FILE", os.path.join(log_dir, "log.txt"))
     try:
-        os.makedirs(os.path.dirname(log_file), exist_ok=True)
-        _log_fd = open(log_file, "w", buffering=0)  # Unbuffered for immediate writes
+        _log_fd = open(log_file, "w", buffering=1)
         sys.stdout = sys.stderr = _log_fd
     except Exception as e:
         print(f"Failed to open log file {log_file}: {e}", file=sys.__stdout__)
