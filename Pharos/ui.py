@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 """
-Pharos UI (fixed)
-- Instance-local font
-- Guarded SDL/IMG/TTF init
-- LRU texture cache with eviction
-- Safe destruction and no double SDL_Quit()
+Pharos UI
 """
 import ctypes
 import os
