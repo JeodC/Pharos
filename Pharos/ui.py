@@ -14,7 +14,7 @@ import sdl2.sdlimage as img
 from config import color_btn_a, color_btn_b
 
 # ----------------------------------------------------------------------
-# Colors (keep original names)
+# Colors
 # ----------------------------------------------------------------------
 color_row_bg = "#383838"
 color_menu_bg = "#141414"
@@ -55,23 +55,12 @@ c_text = hex_to_sdl(color_text)
 c_btn_a = hex_to_sdl(color_btn_a)
 c_btn_b = hex_to_sdl(color_btn_b)
 
-# ----------------------------------------------------------------------
-# Font path and size
-# ----------------------------------------------------------------------
 FONT_PATH = os.path.join(os.getcwd(), "fonts", "romm.ttf")
 FONT_SIZE = 12
-
-# ----------------------------------------------------------------------
-# UI Constants
-# ----------------------------------------------------------------------
 HEADER_HEIGHT = 25
 FOOTER_HEIGHT = 20
 BODY_MARGIN_TOP = 0
 BUTTON_AREA_HEIGHT = 50
-
-# ----------------------------------------------------------------------
-# Texture cache settings
-# ----------------------------------------------------------------------
 MAX_TEXTURE_CACHE = 48
 
 # ----------------------------------------------------------------------
@@ -171,7 +160,7 @@ class UserInterface:
         self._desc_max_height = 200
 
         # LRU texture cache: path -> texture
-        self.texture_cache = collections.OrderedDict()  # type: ignore[var-annotated]
+        self.texture_cache = collections.OrderedDict()
         self._initialized = True
 
     # ------------------------------------------------------------------
@@ -222,7 +211,7 @@ class UserInterface:
         sdl2.SDL_RenderPresent(self.renderer)
 
     # ------------------------------------------------------------------
-    # Cleanup - safe and idempotent. Does NOT call SDL_Quit().
+    # Cleanup Does NOT call SDL_Quit().
     # Top-level code should call SDL_Quit() once for the process.
     # ------------------------------------------------------------------
     def cleanup(self):
@@ -257,7 +246,7 @@ class UserInterface:
         except Exception:
             pass
 
-        # Close font safely
+        # Close font
         try:
             if getattr(self, "font", None):
                 ttf.TTF_CloseFont(self.font)
